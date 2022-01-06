@@ -2,8 +2,12 @@
 
 namespace MichalDoda\LaravelS3Thumbnail;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 /**
  * @method string getS3ImagePath
@@ -11,64 +15,57 @@ use Illuminate\Support\Facades\Storage;
  */
 trait ThumbnailTrait
 {
-    private function getThumbnailHash(string $name): string
+    private function getThumbnailDirectory(string $thumbnailName): string
     {
-        $config = $this->getThumbnailConfig();
-        return md5(json_encode($config[$name]));
-    }
-
-    private function getThumbnailDirectory(string $name): string
-    {
-        $hash = $this->getThumbnailHash($name);
-        $fileNameWithoutExtension = explode(".", $this->getFileName())[0];
-        $publicDisk = config('s3-thumbnail.public_disk');
-        $publicPath = config('s3-thumbnail.public_path');
-        if (!Storage::disk($publicDisk)->exists("$publicPath/$fileNameWithoutExtension/$hash")) {
-            Storage::disk($publicDisk)->makeDirectory("$publicPath/$fileNameWithoutExtension/$hash");
-        }
+        $hash = Thumbnail::getThumbnailHash($thumbnailName);
+        $fileNameWithoutExtension = Thumbnail::getFileNameWithoutExtension($this->getFileName());
+        $publicPath = Thumbnail::getPublicPath();
         $storageAppPublic = storage_path('app/public');
+
+        if (!Thumbnail::getPublicDisk()->exists("$publicPath/$fileNameWithoutExtension/$hash")) {
+            Thumbnail::getPublicDisk()->makeDirectory("$publicPath/$fileNameWithoutExtension/$hash");
+        }
+
         return "$storageAppPublic/$publicPath/$fileNameWithoutExtension/$hash";
     }
 
-    private function isThumbnailAlreadyCreated(string $name): bool
+    private function isThumbnailAlreadyCreated(string $thumbnailName): bool
     {
-        $publicDisk = config('s3-thumbnail.public_disk');
-        $publicPath = config('s3-thumbnail.public_path');
-        $hash = $this->getThumbnailHash($name);
-        $fileNameWithoutExtension = explode(".", $this->getFileName())[0];
-        return Storage::disk($publicDisk)->exists("$publicPath/$fileNameWithoutExtension/$hash");
+        $publicPath = Thumbnail::getPublicPath();
+        $fileNameWithoutExtension = Thumbnail::getFileNameWithoutExtension($this->getFileName());
+        $hash = Thumbnail::getThumbnailHash($thumbnailName);
+        return Thumbnail::getPublicDisk()->exists("$publicPath/$fileNameWithoutExtension/$hash");
     }
 
     /**
-     * @param string $name
-     * @throws MissingThumbnailException
-     * @throws ConfigException
+     * @param string $thumbnailName
+     * @throws MissingThumbnailException|ConfigException|FileNotFoundException
      */
-    public function generateThumbnail(string $name): void
+    public function generateThumbnail(string $thumbnailName): void
     {
-        if ($this->isThumbnailAlreadyCreated($name)) {
+        if ($this->isThumbnailAlreadyCreated($thumbnailName)) {
             return;
         }
 
-        $config = $this->getThumbnailConfig();
-        if (!Arr::has($config, $name)) {
-            throw new MissingThumbnailException("$name");
+        $config = Thumbnail::getThumbnailsConfig($thumbnailName);
+        if ($config === null) {
+            throw new MissingThumbnailException("$thumbnailName");
         }
 
-        $directoryToSave = $this->getThumbnailDirectory($name);
-        if (empty($config[$name])) {
-            throw new ConfigException("Thumbnail must have at least a default configuration.");
+        $directoryToSave = $this->getThumbnailDirectory($thumbnailName);
+        if (empty($config)) {
+            throw new ConfigException("Thumbnail must have at least the default configuration.");
         }
 
-        foreach ($config[$name] as $settings) {
-            $img = \Intervention\Image\Facades\Image::make($this->getFileStream());
+        foreach ($config as $settings) {
+            $img = Image::make($this->getFileStream());
 
             if (data_get($settings, 'filters.resize')) {
                 $resizeWidth = data_get($settings, 'filters.resize.width');
                 if ($resizeWidth > $img->getWidth()) {
                     $resizeWidth = $img->getWidth();
                 }
-                $resizeHeight = data_get($settings, 'filters.resize.height', null);
+                $resizeHeight = data_get($settings, 'filters.resize.height');
                 if ($resizeHeight) {
                     $img->resize($resizeWidth, $resizeHeight);
                 } else {
@@ -87,70 +84,59 @@ trait ThumbnailTrait
                 if ($img->getWidth() < $cropWidth) {
                     $cropWidth = $img->getWidth();
                 }
-                $x = data_get($settings, 'filters.crop.x', null);
-                $y = data_get($settings, 'filters.crop.y', null);
+                $x = data_get($settings, 'filters.crop.x');
+                $y = data_get($settings, 'filters.crop.y');
 
                 $img->crop($cropWidth,$cropHeight, $x, $y);
             }
             $fileNameToSave = $settings['max_width'] === 'default' ? 'default' : "w".$settings['max_width'];
-            $img->save("$directoryToSave/$fileNameToSave.jpeg", $this->getThumbnailQuality($settings));
+            $img->save("$directoryToSave/$fileNameToSave.jpeg", data_get($settings, "quality", Thumbnail::getDefaultQuality()));
         }
     }
 
-    private function getThumbnailQuality($settings)
+    private function getThumbnailPath(string $thumbnailName, $option = 'default'): string
     {
-        return data_get($settings, "quality", config('s3-thumbnail.default_quality'));
-    }
-
-    public function getThumbnailDefaultPath($name): string
-    {
-        return $this->getThumbnailPath($name, 'default');
-    }
-
-    private function getThumbnailPath(string $name, $option = 'default'): string
-    {
-        $hash = $this->getThumbnailHash($name);
-        $fileNameWithoutExtension = explode(".", $this->getFileName())[0];
+        $hash = Thumbnail::getThumbnailHash($thumbnailName);
+        $fileNameWithoutExtension = Thumbnail::getFileNameWithoutExtension($this->getFileName());
         if ($option !== 'default') {
             $option = "w$option";
         }
-        $publicPath = config('s3-thumbnail.public_path');
+        $publicPath = Thumbnail::getPublicPath();
         return "/storage/$publicPath/$fileNameWithoutExtension/$hash/$option.jpeg";
     }
 
     /**
-     * @param string $name
+     * @param string $thumbnailName
      * @param array $classNames
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-     * @throws ConfigException
-     * @throws MissingThumbnailException
+     * @return Application|Factory|View
+     * @throws ConfigException|MissingThumbnailException|FileNotFoundException
      */
-    public function getThumbnailHtml(string $name, array $classNames = [])
+    public function getThumbnailHtml(string $thumbnailName, array $classNames = [])
     {
-        $this->generateThumbnail($name);
-        $config = $this->getThumbnailConfig();
-        if (count($config[$name]) === 1) {
+        $this->generateThumbnail($thumbnailName);
+        $config = Thumbnail::getThumbnailsConfig($thumbnailName);
+        if (count($config) === 1) {
             return view('s3-thumbnail::default', [
                 'alt' => $this->getImageAltDescription(),
-                'path' => $this->getThumbnailPath($name, 'default'),
+                'path' => $this->getThumbnailPath($thumbnailName),
                 'classNames' => $classNames,
             ]);
         } else {
             $queries = [];
-            foreach (Arr::pluck($config[$name], 'max_width') as $maxWidth) {
+            foreach (Arr::pluck($config, 'max_width') as $maxWidth) {
                 if ($maxWidth === 'default') {
                     continue;
                 }
                 $queries[] = [
                     'width' => (string)$maxWidth,
-                    'path' => $this->getThumbnailPath($name, (string)$maxWidth),
+                    'path' => $this->getThumbnailPath($thumbnailName, (string)$maxWidth),
                 ];
             }
             return view('s3-thumbnail::queries', [
                 'queries' => $queries,
                 'alt' => $this->getImageAltDescription(),
                 'image' => $this,
-                'defaultPath' => $this->getThumbnailPath($name, 'default'),
+                'defaultPath' => $this->getThumbnailPath($thumbnailName),
                 'classNames' => $classNames,
             ]);
         }
@@ -169,24 +155,12 @@ trait ThumbnailTrait
         return pathinfo($this->getS3ImagePath(), PATHINFO_EXTENSION);
     }
 
+    /**
+     * @throws FileNotFoundException
+     */
     public function getFileStream(): string
     {
-        $this->saveLocally();
-        $originalsPath = config('s3-thumbnail.originals_path');
-        return Storage::disk(config('s3-thumbnail.local_disk'))->get($originalsPath."/".$this->getS3ImagePath());
-    }
-
-    public function saveLocally(): void
-    {
-        $s3ImagePath = $this->getS3ImagePath();
-        $originalsPath = config('s3-thumbnail.originals_path');
-        if (!Storage::disk(config('s3-thumbnail.local_disk'))->exists("$originalsPath/".$s3ImagePath)) {
-            Storage::disk(config('s3-thumbnail.local_disk'))->put("$originalsPath/".$s3ImagePath, Storage::disk(config('s3-thumbnail.s3_disk'))->get($s3ImagePath));
-        }
-    }
-
-    public function getThumbnailConfig(): array
-    {
-        return config('s3-thumbnail.thumbnails');
+        Thumbnail::saveToLocalDisk($this->getS3ImagePath());
+        return Thumbnail::getLocalDisk()->get(Thumbnail::getOriginalPath()."/".$this->getS3ImagePath());
     }
 }
