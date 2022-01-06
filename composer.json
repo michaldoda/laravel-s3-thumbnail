@@ -1,0 +1,56 @@
+{
+    "name": "michaldoda/laravel-s3-thumbnail",
+    "description": "Customizable thumbnail generator for Laravel. From s3 to local disk. Minimize size of your images!",
+    "keywords": [
+        "laravel",
+        "thumbnail",
+        "s3",
+        "s3 thumbnails"
+    ],
+    "homepage": "https://github.com/michaldoda/laravel-s3-thumbnail",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Michal Doda",
+            "email": "michael.johnny.b@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "illuminate/support": "^8.0",
+        "league/flysystem-aws-s3-v3": "^1.0",
+        "intervention/image": "^2.7.1",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MichalDoda\\LaravelS3Thumbnail\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MichalDoda\\LaravelS3Thumbnail\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MichalDoda\\LaravelS3Thumbnail\\ThumbnailServiceProvider"
+            ]
+        }
+    }
+}
