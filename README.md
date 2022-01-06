@@ -89,12 +89,6 @@ class YourImageModel extends Model implements ThumbnailInterface
 ]
 ```
 
-### Testing
-
-```bash
-composer test
-```
-
 ### Configuration
 ```php
 /**
@@ -197,6 +191,12 @@ composer test
         ],
     ],
 ]
+```
+
+### Testing
+
+```bash
+composer test
 ```
 
 ### License
