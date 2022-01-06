@@ -1,12 +1,13 @@
 ## Laravel S3 Thumbnail
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/michaldoda/laravel-s3-thumbnail.svg)](https://packagist.org/packages/michaldoda/laravel-s3-thumbnail)
-[![Total Downloads](https://img.shields.io/packagist/dt/michaldoda/laravel-s3-thumbnail.svg)](https://packagist.org/packages/michaldoda/laravel-s3-thumbnail)
+![Latest Version on Packagist](https://badgen.net/packagist/v/michaldoda/laravel-s3-thumbnail)
+![Total Download](https://badgen.net/packagist/dt/michaldoda/laravel-s3-thumbnail)
+![License](https://badgen.net/packagist/license/michaldoda/laravel-s3-thumbnail)
 
 ![This is an image](docs/example.png)
 
 🔥 **original photo was 1024x1024, 989.98 kB**
-
+https://badgen.net/packagist/v/michaldoda/laravel-s3-thumbnail
 
 By creating many media pages, I have worked out some solution. This package will help you to minimize S3 / Cloudfront costs (sometimes unexpected) and the amount of data transfer. It also helps SEO by optimizing the image size - yeah I tried that and Google Lighthouse likes that. 🎉
 
