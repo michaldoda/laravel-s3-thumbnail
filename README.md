@@ -1,8 +1,8 @@
 ## Laravel S3 Thumbnail
 
-<img src="https://badgen.net/packagist/v/michaldoda/laravel-s3-thumbnail" alt="Version"/>
-<img src="https://badgen.net/packagist/dt/michaldoda/laravel-s3-thumbnail" alt="Total downloads"/>
-<img src="https://badgen.net/packagist/license/michaldoda/laravel-s3-thumbnail" alt="License"/>
+![Latest Version on Packagist](https://badgen.net/packagist/v/michaldoda/laravel-s3-thumbnail)
+![Total Download](https://badgen.net/packagist/dt/michaldoda/laravel-s3-thumbnail)
+![License](https://badgen.net/packagist/license/michaldoda/laravel-s3-thumbnail)
 
 ![This is an image](docs/example.png)
 
