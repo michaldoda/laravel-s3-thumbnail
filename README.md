@@ -7,7 +7,6 @@
 ![This is an image](docs/example.png)
 
 🔥 **original photo was 1024x1024, 989.98 kB**
-https://badgen.net/packagist/v/michaldoda/laravel-s3-thumbnail
 
 By creating many media pages, I have worked out some solution. This package will help you to minimize S3 / Cloudfront costs (sometimes unexpected) and the amount of data transfer. It also helps SEO by optimizing the image size - yeah I tried that and Google Lighthouse likes that. 🎉
 
