@@ -94,7 +94,7 @@ trait ThumbnailTrait
         }
     }
 
-    private function getThumbnailPath(string $thumbnailName, $option = 'default'): string
+    public function getThumbnailPath(string $thumbnailName, $option = 'default'): string
     {
         $hash = Thumbnail::getThumbnailHash($thumbnailName);
         $fileNameWithoutExtension = Thumbnail::getFileNameWithoutExtension($this->getFileName());
