@@ -90,7 +90,9 @@ trait ThumbnailTrait
                 $img->crop($cropWidth,$cropHeight, $x, $y);
             }
             $fileNameToSave = $settings['max_width'] === 'default' ? 'default' : "w".$settings['max_width'];
-            $img->save("$directoryToSave/$fileNameToSave.jpeg", data_get($settings, "quality", Thumbnail::getDefaultQuality()));
+            // save both formats
+            $img->save("$directoryToSave/$fileNameToSave.jpeg", data_get($settings, "quality", Thumbnail::getDefaultQuality()), 'jpeg');
+            $img->save("$directoryToSave/$fileNameToSave.webp", data_get($settings, "quality", Thumbnail::getDefaultQuality()), 'webp');
         }
     }
 
@@ -102,7 +104,8 @@ trait ThumbnailTrait
             $option = "w$option";
         }
         $publicPath = Thumbnail::getPublicPath();
-        return "/storage/$publicPath/$fileNameWithoutExtension/$hash/$option.jpeg";
+        $format = Thumbnail::getDefaultFormat();
+        return "/storage/$publicPath/$fileNameWithoutExtension/$hash/$option.$format";
     }
 
     /**

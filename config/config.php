@@ -31,6 +31,11 @@ return [
      */
     'originals_path' => 'originals',
     /**
+     * Default format for thumbnails.
+     * Available options: webp, jpeg
+     */
+    'default_format' => 'webp',
+    /**
      * Default quality for thumbnails.
      * It will be used only if single thumbnail configuration does not have own value.
      */

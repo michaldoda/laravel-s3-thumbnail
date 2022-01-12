@@ -68,4 +68,9 @@ class Thumbnail
     {
         return config('s3-thumbnail.default_quality');
     }
+
+    public static function getDefaultFormat(): string
+    {
+        return config('s3-thumbnail.default_format', 'webp');
+    }
 }
