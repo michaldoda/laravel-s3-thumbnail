@@ -116,11 +116,18 @@ trait ThumbnailTrait
         $this->generateThumbnail($thumbnailName);
         $config = Thumbnail::getThumbnailsConfig($thumbnailName);
         if (count($config) === 1) {
-            return view('s3-thumbnail::default', [
+            $vars = [
                 'alt' => $this->getImageAltDescription(),
                 'path' => $this->getThumbnailPath($thumbnailName),
                 'classNames' => $classNames,
-            ]);
+            ];
+            if (file_exists(public_path().$this->getThumbnailPath($thumbnailName))) {
+                $thumbnailImage = Image::make(public_path().$this->getThumbnailPath($thumbnailName));
+                $vars['width'] = $thumbnailImage->getWidth();
+                $vars['height'] = $thumbnailImage->getHeight();
+            }
+
+            return view('s3-thumbnail::default', $vars);
         } else {
             $queries = [];
             foreach (Arr::pluck($config, 'max_width') as $maxWidth) {
