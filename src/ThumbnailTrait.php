@@ -96,8 +96,14 @@ trait ThumbnailTrait
         }
     }
 
+    /**
+     * @throws MissingThumbnailException
+     * @throws FileNotFoundException
+     * @throws ConfigException
+     */
     public function getThumbnailPath(string $thumbnailName, $option = 'default'): string
     {
+        $this->generateThumbnail($thumbnailName);
         $hash = Thumbnail::getThumbnailHash($thumbnailName);
         $fileNameWithoutExtension = Thumbnail::getFileNameWithoutExtension($this->getFileName());
         if ($option !== 'default') {
