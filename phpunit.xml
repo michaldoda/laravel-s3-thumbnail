@@ -13,7 +13,7 @@
     </coverage>
     <testsuites>
         <testsuite name="Feature">
-            <directory>./tests/Feature</directory>
+            <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
     <php>
