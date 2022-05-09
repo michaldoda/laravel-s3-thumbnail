@@ -1,5 +1,9 @@
 <img
+        @if ($lazyLoading)
+        data-src="{{$path}}"
+        @else
         src="{{$path}}"
+        @endif
         alt="{{$alt}}"
         @if (isset($classNames) && $classNames)
         class="{{implode(' ', $classNames)}}"

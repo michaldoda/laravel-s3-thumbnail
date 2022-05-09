@@ -2,5 +2,9 @@
     @foreach($queries as $query)
         <source srcset="{{$query['path']}}" media="(max-width: {{$query['width']}}px)">
     @endforeach
-    <img src="{{$defaultPath}}" alt="{{$alt}}">
+    @if ($lazyLoading)
+        <img data-src="{{$defaultPath}}" alt="{{$alt}}">
+    @else
+        <img src="{{$defaultPath}}" alt="{{$alt}}">
+    @endif
 </picture>

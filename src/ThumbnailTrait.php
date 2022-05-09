@@ -117,10 +117,11 @@ trait ThumbnailTrait
     /**
      * @param string $thumbnailName
      * @param array $classNames
+     * @param bool $lazyLoading
      * @return Application|Factory|View
      * @throws ConfigException|MissingThumbnailException|FileNotFoundException
      */
-    public function getThumbnailHtml(string $thumbnailName, array $classNames = [])
+    public function getThumbnailHtml(string $thumbnailName, array $classNames = [], bool $lazyLoading = false)
     {
         $this->generateThumbnail($thumbnailName);
         $config = Thumbnail::getThumbnailsConfig($thumbnailName);
@@ -129,6 +130,7 @@ trait ThumbnailTrait
                 'alt' => $this->getImageAltDescription(),
                 'path' => $this->getThumbnailPath($thumbnailName),
                 'classNames' => $classNames,
+                'lazyLoading' => $lazyLoading,
             ];
             if (file_exists(public_path().$this->getThumbnailPath($thumbnailName))) {
                 $thumbnailImage = Image::make(public_path().$this->getThumbnailPath($thumbnailName));
@@ -154,6 +156,7 @@ trait ThumbnailTrait
                 'image' => $this,
                 'defaultPath' => $this->getThumbnailPath($thumbnailName),
                 'classNames' => $classNames,
+                'lazyLoading' => $lazyLoading,
             ]);
         }
     }
