@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        bootstrap="vendor/autoload.php"
-        colors="true"
-        verbose="true"
-        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
->
-    <coverage>
-        <include>
-            <directory suffix=".php">src/</directory>
-        </include>
-    </coverage>
-    <testsuites>
-        <testsuite name="Feature">
-            <directory>./tests/Feature</directory>
-        </testsuite>
-    </testsuites>
-    <php>
-        <env name="AWS_ACCESS_KEY_ID" value="" />
-        <env name="AWS_SECRET_ACCESS_KEY" value="" />
-        <env name="AWS_DEFAULT_REGION" value="" />
-        <env name="AWS_BUCKET" value="" />
-        <env name="AWS_S3_FILEPATH" value="" />
-    </php>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="vendor/autoload.php" colors="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd" cacheDirectory=".phpunit.cache">
+  <coverage/>
+  <testsuites>
+    <testsuite name="Feature">
+      <directory>./tests/Feature</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <env name="AWS_ACCESS_KEY_ID" value=""/>
+    <env name="AWS_SECRET_ACCESS_KEY" value=""/>
+    <env name="AWS_DEFAULT_REGION" value=""/>
+    <env name="AWS_BUCKET" value=""/>
+    <env name="AWS_S3_FILEPATH" value=""/>
+  </php>
+  <source>
+    <include>
+      <directory suffix=".php">src/</directory>
+    </include>
+  </source>
 </phpunit>

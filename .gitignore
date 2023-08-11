@@ -2,3 +2,5 @@ vendor
 .idea
 .phpunit.result.cache
 .env
+.phpunit.cache
+.env.testing
